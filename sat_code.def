@@ -20,3 +20,4 @@ EXPORTS
    sxpx_set_dpsec_integration_step   @19
    sxpx_library_version              @20
    j2000_to_epoch_of_date            @21
+   write_elements_in_tle_format      @22
