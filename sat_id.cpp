@@ -1123,12 +1123,14 @@ static int add_tle_to_obs( object_t *objects, const size_t n_objects,
                   if( !dt)
                      {
                      OBSERVATION temp_obs = *optr2;
+                     double dist2;
 
                      temp_obs.jd += min_dt;
-                     set_observer_location( &temp_obs);
+                     if( memcmp( temp_obs.text + 77, "247", 3))
+                        set_observer_location( &temp_obs);
                      if( vector3_length( optr2->observer_loc) > 6400.)
                         show_computed_motion = false;   /* spacecraft-based obs */
-                     compute_artsat_ra_dec( &ra2, &dec2, &dist_to_satellite,
+                     compute_artsat_ra_dec( &ra2, &dec2, &dist2,
                               &temp_obs, &tle, sat_params, NULL);
                      }
                   else
@@ -1261,19 +1263,29 @@ static int add_tle_to_obs( object_t *objects, const size_t n_objects,
 
             if( fabs( mjd_start + 2400000.5 - tle_start) > tolerance)
                {
+               char time_buff[40];
+
                fprintf( stderr, REVERSE_VIDEO "WARNING: starting date for TLEs in '%s' "
                         "mismatches that in tle_list.txt\n" NORMAL_VIDEO, tle_file_name);
-               fprintf( stderr, "TLE list start MJD %f\n", tle_start - 2400000.5);
-               fprintf( stderr, "'Range:' line start MJD %f\n", mjd_start);
+               full_ctime( time_buff, tle_start, FULL_CTIME_YMD);
+               fprintf( stderr, "TLE list start MJD %f = %s\n",
+                                             tle_start - 2400000.5, time_buff);
+               full_ctime( time_buff, mjd_start + 2400000.5, FULL_CTIME_YMD);
+               fprintf( stderr, "'Range:' line start MJD %f = %s\n", mjd_start, time_buff);
                fprintf( stderr, "diff = %f\n",
                         mjd_start + 2400000.5 - tle_start);
                }
             if( fabs( mjd_end + 2400000.5 - tle_start - tle_range) > tolerance)
                {
+               char time_buff[40];
+
                fprintf( stderr, REVERSE_VIDEO "WARNING: ending date for TLES in '%s' "
                         "mismatches that in tle_list.txt\n" NORMAL_VIDEO, tle_file_name);
-               fprintf( stderr, "TLE list ends MJD %f\n", tle_start + tle_range - 2400000.5);
-               fprintf( stderr, "'Range:' line ends MJD %f\n", mjd_end);
+               full_ctime( time_buff, tle_start + tle_range, FULL_CTIME_YMD);
+               fprintf( stderr, "TLE list ends MJD %f = %s\n",
+                             tle_start + tle_range - 2400000.5, time_buff);
+               full_ctime( time_buff, mjd_end + 2400000.5, FULL_CTIME_YMD);
+               fprintf( stderr, "'Range:' line ends MJD %f = %s\n", mjd_end, time_buff);
                fprintf( stderr, "diff = %f\n",
                         mjd_end + 2400000.5 - tle_start - tle_range);
                }
@@ -1458,6 +1470,7 @@ int main( const int argc, const char **argv)
    const char *tname = "tle_list.txt";
    const char *output_astrometry_filename = NULL;
    bool output_only_matches = false;
+   const char *ifilename = NULL;
    FILE *ifile;
    OBSERVATION *obs;
    object_t *objects;
@@ -1558,6 +1571,8 @@ int main( const int argc, const char **argv)
                break;
             }
          }
+      else if( !ifilename)
+         ifilename = argv[i];
    if( verbose)
       for( i = 0; i < argc; i++)
          printf( "Arg %d: '%s'\n", i, argv[i]);
@@ -1590,10 +1605,11 @@ int main( const int argc, const char **argv)
       }
 #endif
 
-   ifile = fopen( argv[1], "rb");
+   assert( ifilename);
+   ifile = fopen( ifilename, "rb");
    if( !ifile)
       {
-      fprintf( stderr, "Couldn't open input file %s\n", argv[1]);
+      fprintf( stderr, "Couldn't open input file %s\n", ifilename);
       perror( NULL);
       return( -1);
       }
