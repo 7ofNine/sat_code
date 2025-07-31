@@ -148,8 +148,8 @@ static double compute_angular_rates( const double *obs_pos, const double *topo_p
    total_motion = hypot( xmotion, ymotion);
    *motion_pa = PI + atan2( xmotion, ymotion);
    *motion_pa *= 180. / PI;
-   *ra_motion = xmotion * (180. / PI) * 60.;
-   *dec_motion = ymotion * (180. / PI) * 60.;
+   *ra_motion = -xmotion * (180. / PI) * 60.;
+   *dec_motion = -ymotion * (180. / PI) * 60.;
    return( total_motion * (180. / PI) * 60.);      /* cvt to arcmin/min = arcsec/sec */
 }
 
@@ -164,7 +164,7 @@ static int show_ephems_from( const char *path_to_tles, const ephem_t *e,
 {
    FILE *ifile;
    char line0[100], line1[100], line2[100];
-   int show_it = 1;
+   int show_it = 1, header_shown = 0;
    double jd_tle = 0., tle_range = 1e+10, abs_mag = 0.;
    const bool is_geocentric = (e->rho_sin_phi == 0. && e->rho_cos_phi == 0.);
    static const char *header_text =
@@ -232,10 +232,11 @@ static int show_ephems_from( const char *path_to_tles, const ephem_t *e,
                double ra_motion, dec_motion;
                const char *format_string;
 
-               if( !i)
+               if( !header_shown)
                   {
                   char *tptr;
 
+                  header_shown = 1;
                   printf( "\nEphemerides for %05d = %s%.2s-%s\n",
                               tle.norad_number,
                               (atoi( tle.intl_desig) > 57000) ? "19" : "20",
@@ -383,9 +384,11 @@ int generate_artsat_ephems( const char *path_to_tles, const ephem_t *e)
          }
       if( !memcmp( buff, "# ID:", 5))
          {
+         int i;
+
          if( buff[5] != ' ' || buff[11] != ' ' || buff[12] != ' ')
             fprintf( stderr, "BAD LINE %s\n", buff);
-         for( int i = 6; i < 10; i++)
+         for( i = 6; i < 10; i++)
             if( !isdigit( buff[i]) || !isdigit( buff[i + 7]))
                {
                printf( "BAD LINE (2) %s\n", buff);
@@ -512,7 +515,8 @@ static void error_help( void)
            "   -t(date/time) : starting time of ephemeris (default = now)\n"
            "   -n(#) : number of ephemeris steps (default = 20)\n"
            "   -s(#) : ephemeris step size in days (default = 1h)\n"
-           "   -o(#) : five digit NORAD number or YYNNNA international designation\n"
+           "   -S    : show motions in RA/dec components,  as well as total/PA\n");
+   printf( "   -o(#) : five digit NORAD number or YYNNNA international designation\n"
            "   -r    : do _not_ round times to nearest step size\n"
            "   -u    : show motions in \"/min = degrees/hr (default is \"/sec)\n"
            "   -m    : show times as MJD\n"
