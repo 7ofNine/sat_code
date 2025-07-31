@@ -7,8 +7,8 @@ This should warn me if certain artsats get dropped from 'all_tle.txt'.
    The absence of certain artsats is essentially routine.  But for some
 objects (marked with an !),  Space-Track is our only source of TLEs.
 (Or at least,  I've been relying on them.  I _could_ generate TLES for
-CXO,  for example,  based on _Horizons_ ephems.  But I want this
-program to squawk loudly if Space-Track stops supplying CXO TLEs.)
+CXO,  for example,  based on _Horizons_ ephems.  Since I don't,  I want
+this program to squawk loudly if Space-Track stops supplying CXO TLEs.)
 
    As of 2024 Aug 31,  the program can also be used for updating the
 Space-Track TLEs in a slightly more cautious manner.  If you have
@@ -43,7 +43,7 @@ int main( const int argc, const char **argv)
 {
    static const char *sats[] = {
           "00041A ! Cluster II-FM7",
-          "00045A ! Cluster II-FM5",
+          "00045A   Cluster II-FM5",
           "00045B ! Cluster II-FM8",
           "02048A ! INTEGRAL",
           "07004A ! THEMIS-A",
@@ -67,24 +67,24 @@ int main( const int argc, const char **argv)
           "22110B ! Ariane 5 R/B",
           "22146B ! Falcon 9 R/B",
           "22134B ! Falcon 9 R/B",
-          "24048E ! DRO R/B",
+          "24048E   DRO R/B",
           "24059B ! Falcon 9 R/B",
           "24127B ! Falcon 9 R/B",
-          "24214B ! Falcon 9 R/B",
           "24233A ! Proba-3",
           "24233B ! Proba-3 booster",
           "63039A ! Vela 1A",
           "64040B ! Vela 2B",
-          "65058A ! Vela 3A",
+          "65058A   Vela 3A",
           "65058B   Vela 6",
           "67040A   Vela 4A",
           "67040F ! Titan 3C transtage booster",
           "69046F ! Titan 3C transtage booster",
+          "69046G ! Vela 9/10 interstage",
           "70027C ! Vela 6 booster",
           "72073A   IMP-7",
           "76023C ! SOLRAD-11A",
           "76023H ! SOLRAD-11 debris",
-          "77093E ! SL-6 R/B(2)",
+          "77093E   SL-6 R/B(2)",
           "83020A ! ASTRON",
           "83020D ! ASTRON booster",
           "92044A   GEOTAIL",
